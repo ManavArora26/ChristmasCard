@@ -2,110 +2,151 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Animated Christmas Card</title>
+<title>Open Gift Card</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-html, body {
+body {
   margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
+  height: 100vh;
   background: radial-gradient(circle at top, #0a2a43, #000814);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: Arial, sans-serif;
 }
 
-/* Snowflakes */
-.snow {
-  position: fixed;
-  top: -10px;
-  width: 6px;
-  height: 6px;
-  background: white;
-  border-radius: 50%;
-  opacity: 0.9;
-  animation: fall linear infinite;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh);
-  }
+/* Card container */
+.card-wrapper {
+  perspective: 1200px;
 }
 
 /* Card */
 .card {
-  position: absolute;
-  inset: 0;
-  margin: auto;
   width: 320px;
   height: 420px;
+  position: relative;
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+
+/* Front cover */
+.card-front {
+  position: absolute;
+  inset: 0;
   background: linear-gradient(145deg, #b11226, #7a0b1a);
-  border-radius: 18px;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: float 4s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-18px); }
-}
-
-.card-inner {
-  text-align: center;
   color: #fff;
-  padding: 20px;
-}
-
-.tree {
-  font-size: 90px;
-  animation: glow 2s infinite alternate;
-}
-
-@keyframes glow {
-  from { text-shadow: 0 0 10px #00ffcc; }
-  to { text-shadow: 0 0 30px #00ffcc; }
-}
-
-.title {
-  margin-top: 20px;
   font-size: 26px;
   letter-spacing: 2px;
+  backface-visibility: hidden;
+  z-index: 2;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
 }
 
-.subtitle {
-  margin-top: 10px;
-  font-size: 15px;
-  opacity: 0.9;
+/* Inside */
+.card-inside {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  border-radius: 16px;
+  text-align: center;
+  padding-top: 80px;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
+/* Open animation */
+.card.open {
+  animation: openCard 1.2s forwards;
+}
+
+@keyframes openCard {
+  to { transform: rotateY(-180deg); }
+}
+
+/* Inside text */
+.card-inside h1 {
+  color: #b11226;
+  margin-bottom: 10px;
+}
+
+.card-inside p {
+  color: #333;
+}
+
+/* Gifts */
+.gift {
+  position: absolute;
+  font-size: 32px;
+  pointer-events: none;
+  animation: fly 2.5s ease-out forwards;
+}
+
+@keyframes fly {
+  0% {
+    transform: translate(0,0) scale(0.5);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.2) rotate(360deg);
+    opacity: 0;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <div class="card-inner">
-    <div class="tree">🎄</div>
-    <div class="title">Merry Christmas</div>
-    <div class="subtitle">and Happy New Year</div>
+<div class="card-wrapper">
+  <div class="card" id="card">
+    <div class="card-front">
+      Click to Open 🎄
+    </div>
+    <div class="card-inside">
+      <h1>Merry Christmas 🎁</h1>
+      <p>Wishing you joy & surprises!</p>
+    </div>
   </div>
 </div>
 
 <script>
-const snowCount = 140;
+const card = document.getElementById("card");
+let opened = false;
 
-for (let i = 0; i < snowCount; i++) {
-  const snow = document.createElement("div");
-  snow.className = "snow";
-  snow.style.left = Math.random() * 100 + "vw";
-  snow.style.animationDuration = (Math.random() * 6 + 4) + "s";
-  snow.style.opacity = Math.random();
-  snow.style.transform = `scale(${Math.random()})`;
-  document.body.appendChild(snow);
+card.addEventListener("click", () => {
+  if (opened) return;
+  opened = true;
+
+  card.classList.add("open");
+  releaseGifts();
+});
+
+function releaseGifts() {
+  const gifts = ["🎁","🎁","🎁","🎄","⭐","❄️"];
+
+  for (let i = 0; i < 25; i++) {
+    const gift = document.createElement("div");
+    gift.className = "gift";
+    gift.textContent = gifts[Math.floor(Math.random() * gifts.length)];
+
+    gift.style.left = "50%";
+    gift.style.top = "50%";
+    gift.style.setProperty("--x", `${(Math.random() - 0.5) * 600}px`);
+    gift.style.setProperty("--y", `${(Math.random() - 0.8) * 600}px`);
+
+    document.body.appendChild(gift);
+
+    setTimeout(() => gift.remove(), 2500);
+  }
 }
 </script>
 
