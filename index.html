@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Open Gift Card</title>
+<title>Gift Box Card</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -17,87 +17,92 @@ body {
   font-family: Arial, sans-serif;
 }
 
-/* Card container */
-.card-wrapper {
-  perspective: 1200px;
-}
-
-/* Card */
-.card {
-  width: 320px;
-  height: 420px;
+/* Box container */
+.box {
+  width: 300px;
+  height: 200px;
   position: relative;
-  transform-style: preserve-3d;
+  perspective: 1200px;
   cursor: pointer;
 }
 
-/* Front cover */
-.card-front {
+/* Box base */
+.box-base {
   position: absolute;
-  inset: 0;
+  bottom: 0;
+  width: 100%;
+  height: 140px;
   background: linear-gradient(145deg, #b11226, #7a0b1a);
-  border-radius: 16px;
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 26px;
-  letter-spacing: 2px;
-  backface-visibility: hidden;
-  z-index: 2;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  font-size: 22px;
+  z-index: 1;
 }
 
-/* Inside */
-.card-inside {
+/* Lid */
+.box-lid {
   position: absolute;
-  inset: 0;
-  background: #fff;
-  border-radius: 16px;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  background: linear-gradient(145deg, #d4142a, #9c0e1e);
+  border-radius: 14px 14px 0 0;
+  transform-origin: top center;
+  transition: transform 1s ease;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+  z-index: 2;
+}
+
+/* Open state */
+.box.open .box-lid {
+  transform: rotateX(-120deg);
+}
+
+/* Inside message */
+.inside-text {
+  position: absolute;
+  bottom: 40px;
+  width: 100%;
   text-align: center;
-  padding-top: 80px;
-  transform: rotateY(180deg);
-  backface-visibility: hidden;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  color: #fff;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 1s ease;
 }
 
-/* Open animation */
-.card.open {
-  animation: openCard 1.2s forwards;
-}
-
-@keyframes openCard {
-  to { transform: rotateY(-180deg); }
-}
-
-/* Inside text */
-.card-inside h1 {
-  color: #b11226;
-  margin-bottom: 10px;
-}
-
-.card-inside p {
-  color: #333;
+.box.open .inside-text {
+  opacity: 1;
 }
 
 /* Gifts */
 .gift {
   position: absolute;
+  bottom: 80px;
+  left: 50%;
   font-size: 32px;
+  transform: translateX(-50%);
   pointer-events: none;
-  animation: fly 2.5s ease-out forwards;
+  animation: pop 2.8s ease-out forwards;
 }
 
-@keyframes fly {
+@keyframes pop {
   0% {
-    transform: translate(0,0) scale(0.5);
+    transform: translate(-50%, 40px) scale(0.3);
     opacity: 0;
   }
   30% {
     opacity: 1;
+    transform: translate(-50%, -40px) scale(1);
   }
   100% {
-    transform: translate(var(--x), var(--y)) scale(1.2) rotate(360deg);
+    transform: translate(
+      calc(-50% + var(--x)),
+      calc(-300px + var(--y))
+    ) rotate(360deg);
     opacity: 0;
   }
 }
@@ -106,46 +111,41 @@ body {
 
 <body>
 
-<div class="card-wrapper">
-  <div class="card" id="card">
-    <div class="card-front">
-      Click to Open 🎄
-    </div>
-    <div class="card-inside">
-      <h1>Merry Christmas 🎁</h1>
-      <p>Wishing you joy & surprises!</p>
-    </div>
+<div class="box" id="box">
+  <div class="box-lid"></div>
+  <div class="box-base">
+    Click to Open 🎄
+  </div>
+  <div class="inside-text">
+    Merry Christmas Minisha san🎁
   </div>
 </div>
 
 <script>
-const card = document.getElementById("card");
+const box = document.getElementById("box");
 let opened = false;
 
-card.addEventListener("click", () => {
+box.addEventListener("click", () => {
   if (opened) return;
   opened = true;
-
-  card.classList.add("open");
+  box.classList.add("open");
   releaseGifts();
 });
 
 function releaseGifts() {
-  const gifts = ["🎁","🎁","🎁","🎄","⭐","❄️"];
+  const emojis = ["🎁","🎄","⭐","❄️","🍬","🧸"];
 
-  for (let i = 0; i < 25; i++) {
+  for (let i = 0; i < 30; i++) {
     const gift = document.createElement("div");
     gift.className = "gift";
-    gift.textContent = gifts[Math.floor(Math.random() * gifts.length)];
+    gift.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
-    gift.style.left = "50%";
-    gift.style.top = "50%";
-    gift.style.setProperty("--x", `${(Math.random() - 0.5) * 600}px`);
-    gift.style.setProperty("--y", `${(Math.random() - 0.8) * 600}px`);
+    gift.style.setProperty("--x", `${(Math.random() - 0.5) * 500}px`);
+    gift.style.setProperty("--y", `${Math.random() * 200}px`);
 
     document.body.appendChild(gift);
 
-    setTimeout(() => gift.remove(), 2500);
+    setTimeout(() => gift.remove(), 2800);
   }
 }
 </script>
